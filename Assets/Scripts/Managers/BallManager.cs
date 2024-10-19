@@ -5,6 +5,7 @@ using TMPro;
 
 public class BallManager : MonoBehaviour
 {
+    private GameManager GM;
 
     [SerializeField] private GameObject ballPrefab;
     [SerializeField] private TextMeshProUGUI ballCount;
@@ -15,19 +16,27 @@ public class BallManager : MonoBehaviour
     private bool instantiatable = true;
     private int ballRight = 5;
 
+    void Start()
+    {
+        GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
+
     void Update()
     {
-        if(Input.GetButton("InstantiateBall") && instantiatable && ballRight > 0)
+        if(GM.isGameActive())
         {
-            ballRight--;
+            if(Input.GetButton("InstantiateBall") && instantiatable && ballRight > 0)
+            {
+                ballRight--;
 
-            StartCoroutine(BounceCooldown());
+                StartCoroutine(BounceCooldown());
 
-            Vector2 position = new Vector2(playerTF.transform.position.x, playerTF.transform.position.y + 5f);
+                Vector2 position = new Vector2(playerTF.transform.position.x, playerTF.transform.position.y + 5f);
 
-            Instantiate(ballPrefab, position, Quaternion.identity); 
+                Instantiate(ballPrefab, position, Quaternion.identity); 
 
-            ballCount.text = ballRight.ToString();
+                ballCount.text = ballRight.ToString();
+            }
         }
     }
 

@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float groundCheckRadius = 0.2f;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private float groundCheckRadius;
 
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer; 
@@ -15,18 +15,28 @@ public class PlayerControl : MonoBehaviour
     private Animator animator;
     private bool isGrounded;
 
+    private GameManager GM;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        GM = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     void Update()
     {
-        GroundCheck();
-
-        Move();
-        Jump();
+        if(GM.isGameActive())
+        {
+            GroundCheck();
+            Move();
+            Jump();
+        }
+        else
+        {
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+        }
     }
 
     void Move()
