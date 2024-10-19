@@ -50,7 +50,7 @@ public class PlayerControl : MonoBehaviour
 
     void Jump()
     {
-        if(Input.GetButton("Vertical") && isGrounded)
+        if(Input.GetButton("Up") && isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
