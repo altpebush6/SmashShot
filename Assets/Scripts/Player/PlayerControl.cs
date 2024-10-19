@@ -13,7 +13,9 @@ public class PlayerControl : MonoBehaviour
 
     private Rigidbody2D rb;
     private Animator animator;
+
     private bool isGrounded;
+    private bool canDoubleJump;
 
     private GameManager GM;
 
@@ -23,10 +25,14 @@ public class PlayerControl : MonoBehaviour
         animator = GetComponent<Animator>();
 
         GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+        canDoubleJump = true;
     }
 
     void Update()
     {
+        canDoubleJump = (isGrounded) ? true : canDoubleJump;
+
         if(GM.isGameActive())
         {
             GroundCheck();
@@ -46,11 +52,12 @@ public class PlayerControl : MonoBehaviour
         rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
 
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if(horizontal > 0)
+        
+        if(horizontal > 0f)
         {
             sr.flipX = true;
         }
-        else
+        else if(horizontal < 0f)
         {
             sr.flipX = false;
         }
@@ -60,16 +67,24 @@ public class PlayerControl : MonoBehaviour
 
     void Jump()
     {
-        if(Input.GetButton("Up") && isGrounded)
+        if(Input.GetButtonDown("Up"))
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            if(canDoubleJump)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+
+                if(!isGrounded)
+                {
+                    canDoubleJump = false;
+                }
+            }
         }
     }
 
     void GroundCheck()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
+        
         animator.SetBool("isGrounded", isGrounded);
     }
 }

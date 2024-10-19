@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour
 {
+    private GameManager GM;
 
     [SerializeField] private GameObject pointA;
     [SerializeField] private GameObject pointB;
-
     private Transform currentPoint;
 
     [SerializeField] private float speed;
@@ -17,6 +17,8 @@ public class EnemyPatrol : MonoBehaviour
 
     void Start()
     {
+        GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
@@ -27,22 +29,25 @@ public class EnemyPatrol : MonoBehaviour
 
     void Update()
     {
-        Vector2 point = currentPoint.position - transform.position;
+        if(GM.isGameActive())
+        {
+            Vector2 point = currentPoint.position - transform.position;
 
-        if(currentPoint == pointB.transform)
-        {
-            rb.velocity = new Vector2(speed, rb.velocity.y);
-        }
-        else
-        {
-            rb.velocity = new Vector2(-speed, rb.velocity.y);
-        }
+            if(currentPoint == pointB.transform)
+            {
+                rb.velocity = new Vector2(speed, rb.velocity.y);
+            }
+            else
+            {
+                rb.velocity = new Vector2(-speed, rb.velocity.y);
+            }
 
-        if(Vector2.Distance(transform.position, currentPoint.position) < 0.5f)
-        {
-            currentPoint = (currentPoint == pointA.transform) ? pointB.transform : pointA.transform;
-            
-            transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+            if(Vector2.Distance(transform.position, currentPoint.position) < 0.5f)
+            {
+                currentPoint = (currentPoint == pointA.transform) ? pointB.transform : pointA.transform;
+                
+                transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+            }
         }
     }
 
