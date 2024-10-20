@@ -6,12 +6,14 @@ using UnityEngine.UI;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private GameObject enemyObj;
+    [SerializeField] private GameObject deadParticle;
 
     [SerializeField] private Slider healthBar;
 
     [SerializeField] private float maxHealth;
     private float health;
 
+    [SerializeField] private AudioSource destroyAudio;
 
     void Start()
     {
@@ -25,6 +27,8 @@ public class Enemy : MonoBehaviour
 
         if(health <= 0)
         {
+            Instantiate(deadParticle, transform.position, Quaternion.identity);
+            destroyAudio.Play();
             enemyObj.SetActive(false);
         }
 

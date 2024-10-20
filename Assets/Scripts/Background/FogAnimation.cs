@@ -14,7 +14,7 @@ public class FogAnimation : MonoBehaviour
 
         if (transform.position.x <= resetPositionX)
         {
-            transform.position = new Vector2(startPositionX, transform.position.y);
+            transform.position = new Vector3(startPositionX, transform.position.y, transform.position.z);
         }
     }
 }

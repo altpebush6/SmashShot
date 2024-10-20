@@ -6,6 +6,8 @@ public class EnemyCollision : MonoBehaviour
 {
     private GameManager GM;
     private HealthManager HM;
+
+    [SerializeField] private GameObject explosion;
     
     private float damageInterval = 1f;
     private float damageCooldown;
@@ -33,6 +35,8 @@ public class EnemyCollision : MonoBehaviour
                 GameObject ball = collision.gameObject;
 
                 float damageAmount = ball.GetComponent<Rigidbody2D>().velocity.magnitude;
+
+                Instantiate(explosion, ball.transform.position, Quaternion.identity);
 
                 ball.SetActive(false);
 

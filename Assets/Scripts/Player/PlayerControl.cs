@@ -11,6 +11,10 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer; 
 
+    [SerializeField] private AudioSource jumpAudio; 
+    [SerializeField] private AudioSource runAudio; 
+    private bool runAudioPlay;
+
     private Rigidbody2D rb;
     private Animator animator;
 
@@ -18,6 +22,8 @@ public class PlayerControl : MonoBehaviour
     private bool canDoubleJump;
 
     private GameManager GM;
+
+    [HideInInspector] public bool portalPassed; 
 
     void Start()
     {
@@ -27,10 +33,18 @@ public class PlayerControl : MonoBehaviour
         GM = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         canDoubleJump = true;
+        runAudioPlay = false;
+        portalPassed = false;
     }
 
     void Update()
     {
+        if(portalPassed)
+        {
+            StopRunAudio();
+            gameObject.SetActive(false);
+        }
+
         canDoubleJump = (isGrounded) ? true : canDoubleJump;
 
         if(GM.isGameActive())
@@ -47,7 +61,16 @@ public class PlayerControl : MonoBehaviour
 
     void Move()
     {
-        var horizontal = Input.GetAxis("Horizontal");        
+        var horizontal = Input.GetAxis("Horizontal");     
+
+        if(horizontal != 0f)
+        {
+            StartRunAudio();
+        }
+        else
+        {
+            StopRunAudio();
+        }
 
         rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
 
@@ -72,6 +95,7 @@ public class PlayerControl : MonoBehaviour
             if(canDoubleJump)
             {
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                jumpAudio.Play();
 
                 if(!isGrounded)
                 {
@@ -86,5 +110,27 @@ public class PlayerControl : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
         
         animator.SetBool("isGrounded", isGrounded);
+
+        if(!isGrounded)
+        {
+            StopRunAudio();
+        }
+    }
+
+    void StartRunAudio()
+    {
+        if(!runAudioPlay && isGrounded)
+        {
+            runAudio.Play();
+            runAudioPlay = true;
+        }
+    }
+    void StopRunAudio()
+    {
+        if(runAudioPlay)
+        {
+            runAudio.Stop();
+            runAudioPlay = false;
+        }
     }
 }

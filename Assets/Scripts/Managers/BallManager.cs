@@ -20,7 +20,6 @@ public class BallManager : MonoBehaviour
 
     [SerializeField] private int originalBallRight;
     private int ballRight;
-
     [SerializeField] private float offset;
 
     private bool instantiatable = true;
@@ -47,9 +46,9 @@ public class BallManager : MonoBehaviour
 
                 UpdateBallImageColor();
 
-                StartCoroutine(BounceCooldown());
+                StartCoroutine(InstantiateCooldown());
 
-                Vector2 position = new Vector2(playerTF.transform.position.x, playerTF.transform.position.y + offset);
+                Vector3 position = new Vector3(playerTF.transform.position.x, playerTF.transform.position.y + offset, playerTF.transform.position.z);
 
                 Instantiate(ballPrefab, position, Quaternion.identity); 
 
@@ -70,7 +69,7 @@ public class BallManager : MonoBehaviour
         ballImage.color = Color.Lerp(Color.red, Color.green, ratio);
     }
 
-    IEnumerator BounceCooldown()
+    IEnumerator InstantiateCooldown()
     {
         instantiatable = false;
         yield return new WaitForSeconds(cooldownTime);

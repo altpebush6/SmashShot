@@ -42,7 +42,7 @@ public class CameraManager : MonoBehaviour
 
             cameraFollow.position = Vector3.Lerp(center.position, player.position, t);
 
-            cinemachineCamera.m_Lens.OrthographicSize = Mathf.Lerp(initialOrthoSize, targetOrthoSize, t);
+            cinemachineCamera.m_Lens.OrthographicSize = Mathf.Lerp(initialOrthoSize, targetOrthoSize, t * 2);
 
             if (t >= 1.0f)
             {

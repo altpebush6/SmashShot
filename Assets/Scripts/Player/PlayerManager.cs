@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour
 {
     private HealthManager HM;
+    [SerializeField] private float minHeight;
 
     void Start()
     {
@@ -13,7 +14,7 @@ public class PlayerManager : MonoBehaviour
 
     void Update()
     {
-        if(transform.position.y <= -20f)
+        if(transform.position.y <= minHeight)
         {
             HM.Die();
             gameObject.SetActive(false);
