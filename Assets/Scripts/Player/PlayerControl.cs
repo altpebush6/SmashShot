@@ -56,6 +56,7 @@ public class PlayerControl : MonoBehaviour
         else
         {
             rb.velocity = new Vector2(0f, rb.velocity.y);
+            StopRunAudio();
         }
     }
 
