@@ -5,7 +5,7 @@ using Photon.Pun;
 
 public class PlayerSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject spawnPoint;
+    [SerializeField] private GameObject[] spawnPoint;
 
     public delegate void PlayerCreated(GameObject player);
     public static event PlayerCreated OnPlayerCreated;
@@ -19,7 +19,7 @@ public class PlayerSpawner : MonoBehaviour
     {
         string playerName = PhotonNetwork.LocalPlayer.NickName;
 
-        GameObject player = PhotonNetwork.Instantiate("Player", spawnPoint.transform.position, Quaternion.identity);
+        GameObject player = PhotonNetwork.Instantiate("Player", spawnPoint[PhotonNetwork.LocalPlayer.ActorNumber - 1].transform.position, Quaternion.identity);
 
         player.name = playerName;
         player.GetComponent<PlayerManager>().Mark.SetActive(true);

@@ -55,6 +55,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+        Debug.Log("Joined Room: " + PhotonNetwork.CurrentRoom.Name);
+
         roomNameText.text = PhotonNetwork.CurrentRoom.Name;
         CreateRoomMenu.SetActive(false);
         JoinRoomMenu.SetActive(false);
@@ -67,6 +69,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
             StartButton.SetActive(true);
         }
     }
+
 
     public void StartGame()
     {
