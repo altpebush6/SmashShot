@@ -43,7 +43,7 @@ public class PlayerControl : MonoBehaviourPunCallbacks
         }
         else
         {
-            rb.isKinematic = true;
+            rb.gravityScale = 0;
         }
     }
 
@@ -63,6 +63,10 @@ public class PlayerControl : MonoBehaviourPunCallbacks
             {
                 rb.velocity = new Vector2(0f, rb.velocity.y);
             }
+        }
+        else
+        {
+            rb.velocity = Vector2.zero;
         }
     }
 

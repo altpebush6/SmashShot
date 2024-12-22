@@ -12,6 +12,7 @@ public class EnemyCollision : MonoBehaviour
     
     private float damageInterval = 1f;
     private float damageCooldown;
+    private float damageCooldownOtherPlayers;
 
     void Start()
     {        
@@ -24,6 +25,11 @@ public class EnemyCollision : MonoBehaviour
         if (damageCooldown > 0)
         {
             damageCooldown -= Time.deltaTime;
+        }
+
+        if (damageCooldownOtherPlayers > 0)
+        {
+            damageCooldownOtherPlayers -= Time.deltaTime;
         }
     }
 
@@ -43,7 +49,7 @@ public class EnemyCollision : MonoBehaviour
 
                     ball.SetActive(false);
 
-                    GetComponent<Enemy>().GetDamage(damageAmount);
+                    GetComponent<Enemy>().GetDamage(damageAmount, ball.GetComponent<Ball>().owner);
                 }
             }
         }
@@ -55,7 +61,13 @@ public class EnemyCollision : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Player"))
             {
-                if (damageCooldown <= 0 && collision.gameObject.GetComponent<PhotonView>().IsMine)
+                if (damageCooldownOtherPlayers <= 0)
+                {
+                    ScoreManager.Instance.UpdateScore(collision.gameObject.name, -5);  
+                    damageCooldownOtherPlayers = damageInterval;
+                }
+
+                if(damageCooldown <= 0 && collision.gameObject.GetComponent<PhotonView>().IsMine)
                 {
                     HM.GetDamage();
                     damageCooldown = damageInterval;

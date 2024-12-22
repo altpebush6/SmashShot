@@ -56,7 +56,7 @@ public class BallManager : MonoBehaviour
 
                 Vector3 position = new Vector3(playerTF.transform.position.x, playerTF.transform.position.y + offset, playerTF.transform.position.z);
 
-                PhotonNetwork.Instantiate(ballPrefab.name, position, Quaternion.identity); 
+                GameObject ball = PhotonNetwork.Instantiate(ballPrefab.name, position, Quaternion.identity); 
 
                 ballCount.text = ballRight.ToString();
 

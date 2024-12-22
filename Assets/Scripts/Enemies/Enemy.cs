@@ -29,9 +29,11 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void GetDamage(float damage)
+    public void GetDamage(float damage, string owner)
     {
         health -= damage;
+
+        ScoreManager.Instance.UpdateScore(owner, 10);
 
         if(health <= 0)
         {

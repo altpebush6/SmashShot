@@ -12,6 +12,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private GameObject CreateAndJoin;
     [SerializeField] private GameObject CreateRoom;
     [SerializeField] private GameObject JoinRoom;
+    [SerializeField] private GameObject Room;
 
     [SerializeField] private AudioSource backgroundMusic;
     [SerializeField] private Image soundImage;
@@ -20,9 +21,9 @@ public class MainMenuManager : MonoBehaviour
 
     [SerializeField] private TMP_InputField username;
 
+    public GameObject currentPage;
     private bool paused = false;
     private Dictionary<GameObject, GameObject> prevPages = new Dictionary<GameObject, GameObject>();
-    private GameObject currentPage;
     private GameObject serverManager;
 
     void Start()
@@ -36,6 +37,7 @@ public class MainMenuManager : MonoBehaviour
         prevPages.Add(CreateAndJoin, Lobby);
         prevPages.Add(CreateRoom, CreateAndJoin);
         prevPages.Add(JoinRoom, CreateAndJoin);
+        prevPages.Add(Room, CreateAndJoin);
     }
 
     public void ToggleMusic()
@@ -61,10 +63,17 @@ public class MainMenuManager : MonoBehaviour
             serverManager.GetComponent<ConnectToServer>().DisconnectFromServer();
         }
 
-        currentPage.SetActive(false);
-        prevPages[currentPage].SetActive(true);
+        if(currentPage == Room)
+        {
+            GameObject.Find("RoomManager").GetComponent<RoomManager>().LeaveRoom();
+        }
+        else
+        {
+            currentPage.SetActive(false);
+            prevPages[currentPage].SetActive(true);
+            currentPage = prevPages[currentPage];
+        }
 
-        currentPage = prevPages[currentPage];
     }
     public void SetUsernameAndContinue() 
     {

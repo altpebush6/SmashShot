@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class Portal : MonoBehaviour
 {
@@ -52,16 +53,25 @@ public class Portal : MonoBehaviour
         {
             GameObject player = collision.gameObject;
 
-            if(player.GetComponent<PhotonView>().IsMine && !portalPassed)
+            if(!portalPassed)
             {
+                ScoreManager.Instance.UpdateScore(player.name, 100);
+                portalPassed = true;
                 portalAudio.Play();
-
                 Instantiate(passParticle, transform.position, Quaternion.identity);
 
-                player.GetComponent<PlayerManager>().PassPortal(sceneName);
-
-                portalPassed = true;
+                if(player.GetComponent<PhotonView>().IsMine)
+                {
+                    GM.SetGameDeactive();
+                    StartCoroutine(PassPortal());
+                }
             }
         }
+    }
+
+    IEnumerator PassPortal()
+    {
+        yield return new WaitForSeconds(0.5f);
+        player.GetComponent<PlayerManager>().PassPortal(sceneName);
     }
 }

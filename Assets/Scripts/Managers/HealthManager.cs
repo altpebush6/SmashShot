@@ -57,7 +57,7 @@ public class HealthManager : MonoBehaviour
         startColor.a = 0.4f;
         damageEffect.color = startColor;
 
-        float duration = 2.0f;
+        float duration = 1.0f;
         float elapsed = 0.0f;
         while (elapsed < duration)
         {

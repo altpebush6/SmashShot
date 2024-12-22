@@ -11,7 +11,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private HealthManager HM;
     private GameManager GM;
     private PhotonView photonView;
-    
     [SerializeField] private float minHeight;
     [SerializeField] private GameObject playerNameText;
 
@@ -43,6 +42,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         playerNameText.SetActive(true);
         playerNameText.GetComponent<TMP_Text>().text = playerName;
+
+        gameObject.GetComponent<SpriteRenderer>().color = PlayerColors.GetPlayerColor(photonView.Owner.ActorNumber);
     }
 
     public void PassPortal(string sceneName)
@@ -53,7 +54,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public void NextScene(string sceneName)
     {
-
         if (photonView.IsMine)
         {
             ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
@@ -102,6 +102,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
                 if(sceneName.Equals("End"))
                 {
                     GM.SetGameDeactive();
+
+                    GameObject.Find("MainMenuButton").transform.Find("MainMenuBtn").gameObject.SetActive(true);
+                    
+                    GameObject winnerUsername = GameObject.Find("GameDoneGO").transform.Find("WinnerUsername").gameObject;
+                    winnerUsername.SetActive(true);
+                    winnerUsername.GetComponent<TMP_Text>().text = ScoreManager.Instance.GetWinner();
+
                     GameObject.Find("GameDoneGO").transform.Find("GameDone").gameObject.SetActive(true);
                 }
                 else
