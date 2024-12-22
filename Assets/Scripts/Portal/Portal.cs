@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class Portal : MonoBehaviour
 {
@@ -9,47 +10,58 @@ public class Portal : MonoBehaviour
     [SerializeField] private float distance;
 
     [SerializeField] private GameObject gameDone;
-    [SerializeField] private GameObject player;
     [SerializeField] private GameObject passParticle;
 
-    [SerializeField] private SceneLoader SceneLoader;
     [SerializeField] private AudioSource portalAudio;
     [SerializeField] private string sceneName;
+    
+    private GameObject player;
+    private PlayerSpawner playerSpawner;
     private bool portalPassed;
+
+    void Awake()
+    {
+        PlayerSpawner.OnPlayerCreated += HandlePlayerCreated;
+    }
 
     void Start()
     {
-        portalPassed = false;
         GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+        
+        playerSpawner = GameObject.Find("PlayerSpawner").GetComponent<PlayerSpawner>();
+        
+        portalPassed = false;
     }
 
-    void Update()
+    void OnDestroy()
     {
-        if(!portalPassed && Vector2.Distance(transform.position, player.transform.position) < 0.2f)
-        {
-            GM.SetGameDeactive();
-            portalPassed = true;
+        PlayerSpawner.OnPlayerCreated -= HandlePlayerCreated;
+    }
 
-            portalAudio.Play();
-            StartCoroutine(PortalPass());
+    private void HandlePlayerCreated(GameObject player)
+    {
+        if(player.GetComponent<PhotonView>().IsMine)
+        {
+            this.player = player;
         }
     }
 
-    IEnumerator PortalPass()
+    void OnTriggerEnter2D(Collider2D collision)
     {
-        player.GetComponent<PlayerControl>().portalPassed = portalPassed;
-
-        Instantiate(passParticle, transform.position, Quaternion.identity);
-
-        if(sceneName == "End")
+        if(collision.gameObject.CompareTag("Player"))
         {
-            GM.SetGameDeactive();
-            gameDone.SetActive(true);
-        }
-        else
-        {
-            yield return new WaitForSeconds(2f);
-            SceneLoader.LoadSceneByName(sceneName);
+            GameObject player = collision.gameObject;
+
+            if(player.GetComponent<PhotonView>().IsMine && !portalPassed)
+            {
+                portalAudio.Play();
+
+                Instantiate(passParticle, transform.position, Quaternion.identity);
+
+                player.GetComponent<PlayerManager>().PassPortal(sceneName);
+
+                portalPassed = true;
+            }
         }
     }
 }

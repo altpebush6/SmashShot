@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] private GameObject enemyObj;
     [SerializeField] private GameObject deadParticle;
 
     [SerializeField] private Slider healthBar;
@@ -19,6 +19,14 @@ public class Enemy : MonoBehaviour
     {
         health = maxHealth;
         RenderHealthBar();
+
+        PhotonNetwork.SendRate = 60;
+        PhotonNetwork.SerializationRate = 60;
+        
+        if(!GetComponent<PhotonView>().IsMine)
+        {
+            GetComponent<Rigidbody2D>().isKinematic = true;
+        }
     }
 
     public void GetDamage(float damage)
@@ -27,9 +35,9 @@ public class Enemy : MonoBehaviour
 
         if(health <= 0)
         {
-            Instantiate(deadParticle, transform.position, Quaternion.identity);
-            destroyAudio.Play();
-            enemyObj.SetActive(false);
+            PhotonNetwork.Instantiate(deadParticle.name, transform.position, Quaternion.identity);
+            // destroyAudio.Play();
+            gameObject.SetActive(false);
         }
 
         RenderHealthBar();

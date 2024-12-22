@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class EnemyCollision : MonoBehaviour
 {
@@ -28,19 +29,22 @@ public class EnemyCollision : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if(GM.isGameActive())
+        if(GM != null)
         {
-            if (collision.gameObject.CompareTag("Ball"))
+            if(GM.isGameActive())
             {
-                GameObject ball = collision.gameObject;
+                if (collision.gameObject.CompareTag("Ball"))
+                {
+                    GameObject ball = collision.gameObject;
 
-                float damageAmount = ball.GetComponent<Rigidbody2D>().velocity.magnitude;
+                    float damageAmount = 4f;
 
-                Instantiate(explosion, ball.transform.position, Quaternion.identity);
+                    Instantiate(explosion, ball.transform.position, Quaternion.identity);
 
-                ball.SetActive(false);
+                    ball.SetActive(false);
 
-                GetComponent<Enemy>().GetDamage(damageAmount);
+                    GetComponent<Enemy>().GetDamage(damageAmount);
+                }
             }
         }
     }
@@ -51,7 +55,7 @@ public class EnemyCollision : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Player"))
             {
-                if (damageCooldown <= 0)
+                if (damageCooldown <= 0 && collision.gameObject.GetComponent<PhotonView>().IsMine)
                 {
                     HM.GetDamage();
                     damageCooldown = damageInterval;

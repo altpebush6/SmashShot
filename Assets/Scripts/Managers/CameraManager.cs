@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using Photon.Pun;
 
 public class CameraManager : MonoBehaviour
 {
@@ -11,7 +12,6 @@ public class CameraManager : MonoBehaviour
 
     [SerializeField] private Transform center;
     [SerializeField] private Transform cameraFollow;
-    [SerializeField] private Transform player;
 
     [SerializeField] private float initialOrthoSize = 18.0f;
     [SerializeField] private float targetOrthoSize = 15.0f;
@@ -19,9 +19,14 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private float transitionDuration;
     [SerializeField] private float waitTime;
 
+    private Transform player;
     private bool isTransitioning;
     private float transitionTime = 0.0f;
 
+    void Awake()
+    {
+        PlayerSpawner.OnPlayerCreated += HandlePlayerCreated;
+    }
 
     void Start()
     {
@@ -33,9 +38,14 @@ public class CameraManager : MonoBehaviour
         Invoke("StartCameraTransition", waitTime);
     }
 
+    void OnDestroy()
+    {
+        PlayerSpawner.OnPlayerCreated -= HandlePlayerCreated;
+    }
+
     void Update()
     {
-        if (isTransitioning)
+        if (player != null && isTransitioning)
         {
             transitionTime += Time.deltaTime;
             float t = Mathf.Clamp01(transitionTime / transitionDuration);
@@ -58,5 +68,14 @@ public class CameraManager : MonoBehaviour
     {
         isTransitioning = true;
         transitionTime = 0.0f;
+    }
+
+    private void HandlePlayerCreated(GameObject player)
+    {
+        if(player.GetComponent<PhotonView>().IsMine)
+        {
+            this.player = player.transform;
+            cinemachineCamera.Follow = this.player;
+        }
     }
 }

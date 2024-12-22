@@ -19,12 +19,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float BallMin;
     [SerializeField] private float BallMax;
 
-    private bool lookLeft;
+    [SerializeField] private bool lookLeft;
     private bool goDown;
 
     void Start()
     {
-        lookLeft = true;
         goDown = true;
 
         stepSize = -stepSize;

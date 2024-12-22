@@ -1,62 +1,68 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 
-public class PlayerControl : MonoBehaviour
+public class PlayerControl : MonoBehaviourPunCallbacks
 {
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
-    [SerializeField] private float groundCheckRadius;
 
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer; 
-
-    [SerializeField] private AudioSource jumpAudio; 
-    [SerializeField] private AudioSource runAudio; 
-    private bool runAudioPlay;
+    [SerializeField] private Transform canvasTF;
+    [SerializeField] private Transform[] groundChecks;
+    [SerializeField] private float groundCheckDistance; 
 
     private Rigidbody2D rb;
     private Animator animator;
 
     private bool isGrounded;
     private bool canDoubleJump;
+    private bool lookLeft;
+
+    private PhotonView photonView;
 
     private GameManager GM;
-
-    [HideInInspector] public bool portalPassed; 
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
 
-        GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+        photonView = GetComponent<PhotonView>();
 
-        canDoubleJump = true;
-        runAudioPlay = false;
-        portalPassed = false;
+        PhotonNetwork.SendRate = 60;
+        PhotonNetwork.SerializationRate = 60;
+
+        if(photonView.IsMine)
+        {
+            animator = GetComponent<Animator>();
+
+            GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+            canDoubleJump = true;
+            lookLeft = true;
+        }
+        else
+        {
+            rb.isKinematic = true;
+        }
     }
 
     void Update()
     {
-        if(portalPassed)
+        if(photonView.IsMine)
         {
-            StopRunAudio();
-            gameObject.SetActive(false);
-        }
+            canDoubleJump = (isGrounded) ? true : canDoubleJump;
 
-        canDoubleJump = (isGrounded) ? true : canDoubleJump;
-
-        if(GM.isGameActive())
-        {
-            GroundCheck();
-            Move();
-            Jump();
-        }
-        else
-        {
-            rb.velocity = new Vector2(0f, rb.velocity.y);
-            StopRunAudio();
+            if(GM.isGameActive())
+            {
+                GroundCheck();
+                Move();
+                Jump();
+            }
+            else
+            {
+                rb.velocity = new Vector2(0f, rb.velocity.y);
+            }
         }
     }
 
@@ -64,26 +70,19 @@ public class PlayerControl : MonoBehaviour
     {
         var horizontal = Input.GetAxis("Horizontal");     
 
-        if(horizontal != 0f)
-        {
-            StartRunAudio();
-        }
-        else
-        {
-            StopRunAudio();
-        }
-
         rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
-
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
         
-        if(horizontal > 0f)
+        if((horizontal > 0f && lookLeft) || (horizontal < 0f && !lookLeft))
         {
-            sr.flipX = true;
-        }
-        else if(horizontal < 0f)
-        {
-            sr.flipX = false;
+            Vector3 scale = gameObject.transform.localScale;
+            scale.x *= -1f;
+            gameObject.transform.localScale = scale;
+
+            Vector3 canvasScale = canvasTF.localScale;
+            canvasScale.x *= -1f;
+            canvasTF.localScale = canvasScale;
+
+            lookLeft = !lookLeft;
         }
 
         animator.SetFloat("Speed",Mathf.Abs(rb.velocity.x));
@@ -96,7 +95,6 @@ public class PlayerControl : MonoBehaviour
             if(canDoubleJump)
             {
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-                jumpAudio.Play();
 
                 if(!isGrounded)
                 {
@@ -108,30 +106,19 @@ public class PlayerControl : MonoBehaviour
 
     void GroundCheck()
     {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        
+        bool checkRay = false;
+        foreach(Transform groundCheck in groundChecks)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance);
+
+            if(hit.collider != null)
+            {
+                checkRay = true;
+            }
+        }
+
+        isGrounded = checkRay;
+
         animator.SetBool("isGrounded", isGrounded);
-
-        if(!isGrounded)
-        {
-            StopRunAudio();
-        }
-    }
-
-    void StartRunAudio()
-    {
-        if(!runAudioPlay && isGrounded)
-        {
-            runAudio.Play();
-            runAudioPlay = true;
-        }
-    }
-    void StopRunAudio()
-    {
-        if(runAudioPlay)
-        {
-            runAudio.Stop();
-            runAudioPlay = false;
-        }
     }
 }

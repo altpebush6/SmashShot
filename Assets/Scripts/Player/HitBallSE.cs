@@ -9,7 +9,7 @@ public class HitBallSE : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision) {
         if(collision.gameObject.CompareTag("Ball"))
         {
-            hitBallAudio.Play();
+            // hitBallAudio.Play();
         }
     }
 }

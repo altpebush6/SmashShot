@@ -6,34 +6,33 @@ public class EnemyPatrol : MonoBehaviour
 {
     private GameManager GM;
 
-    [SerializeField] private GameObject pointA;
-    [SerializeField] private GameObject pointB;
+    private Transform pointA;
+    private Transform pointB;
     private Transform currentPoint;
 
     [SerializeField] private float speed;
+    [SerializeField] private Transform canvasTF;
 
     private Rigidbody2D rb;
     private Animator animator;
 
-    void Start()
+    void Awake()
     {
         GM = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
-        currentPoint = pointB.transform;
-
         animator.SetBool("isRunning", true);
     }
 
     void Update()
     {
-        if(GM.isGameActive())
+        if(GM.isGameActive() && currentPoint != null)
         {
             Vector2 point = currentPoint.position - transform.position;
 
-            if(currentPoint == pointB.transform)
+            if(currentPoint == pointB)
             {
                 rb.velocity = new Vector2(speed, rb.velocity.y);
             }
@@ -44,17 +43,15 @@ public class EnemyPatrol : MonoBehaviour
 
             if(Vector2.Distance(transform.position, currentPoint.position) < 0.5f)
             {
-                currentPoint = (currentPoint == pointA.transform) ? pointB.transform : pointA.transform;
+                currentPoint = (currentPoint == pointA) ? pointB : pointA;
                 
                 transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+                canvasTF.localScale = new Vector3(canvasTF.localScale.x * -1, canvasTF.localScale.y, canvasTF.localScale.z);
             }
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireSphere(pointA.transform.position, 0.5f);
-        Gizmos.DrawWireSphere(pointB.transform.position, 0.5f);
-        Gizmos.DrawLine(pointA.transform.position, pointB.transform.position);
-    }
+    public void SetPointA(Transform point) { pointA = point; }
+    public void SetPointB(Transform point) { pointB = point; }
+    public void SetCurrentPoint(Transform point) { currentPoint = point; }
 }
